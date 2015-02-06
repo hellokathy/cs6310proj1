@@ -84,7 +84,7 @@ public class Mip {
       write_mip_solution(lp);
     }
     else {
-      System.out.println("The problemcould not be solved");
+      System.out.println("The problem could not be solved");
     };
     
     // free memory
