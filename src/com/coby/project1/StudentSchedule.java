@@ -3,7 +3,7 @@ package com.coby.project1;
 public class StudentSchedule implements Constraint {
 
 	@Override
-	public void getParameters() {
+	public void getParameters(Semesters sem, Courses c, Students s) {
 		// TODO Auto-generated method stub
 
 	}

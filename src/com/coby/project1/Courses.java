@@ -1,13 +1,13 @@
 package com.coby.project1;
 
-public class Classes {
+public class Courses {
 
 	private boolean[][] courseOffering;
 	private int[][] preReq;
 	private int numCourses;
 	private int semesterTypes;
 	
-	public Classes(boolean[][] courseOffering, int [][] preReq, int numCourses, int semesterTypes) {
+	public Courses(boolean[][] courseOffering, int [][] preReq, int numCourses, int semesterTypes) {
 		super();
 		this.courseOffering = courseOffering;
 		this.numCourses = numCourses;

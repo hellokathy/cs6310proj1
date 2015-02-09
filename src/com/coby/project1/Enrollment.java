@@ -2,9 +2,14 @@ package com.coby.project1;
 
 public class Enrollment implements Constraint{
 
+	private Semesters semesters;
+	private Courses courses;
+	private Students students;
 	@Override
-	public void getParameters() {
-		// TODO Auto-generated method stub
+	public void getParameters(Semesters sem, Courses c, Students s) {
+		this.semesters = sem;
+		this.courses = c;
+		this.students = s;
 		
 	}
 

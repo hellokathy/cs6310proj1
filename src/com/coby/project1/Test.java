@@ -50,18 +50,11 @@ public class Test {
 				{9 ,13},
 				{3 ,7 }};
 		
-		Classes classes = new Classes(courseOfferings, preReq, 18, 3);
+		Courses classes = new Courses(courseOfferings, preReq, 18, 3);
 		
 //		Setup students
-		Students students = new Students("student_schedule.txt");
+		Students students = new Students("student_schedule_6.txt");
 	    
-//	    Setup GLP Problem
-	    glp_prob lp;
-	    glp_iocp iocp;
-	    SWIGTYPE_p_int ind;
-	    SWIGTYPE_p_double val;
-	    int ret;
-
 //  	Create LP file    
 	    File file = new File("student_schedule.lp");
 	    
@@ -84,9 +77,9 @@ public class Test {
 //	    Variables
 	    bw.write("Binary");
 	    bw.newLine();
-	    for(int i = 0; i < students.getNumberStudents(); i++) {
-	    	for(int j = 0; j < classes.getNumCourses(); j++) {
-	    		for (int k = 0; k < semester.getNumberSemesters(); k++) {
+	    for(int i = 1; i <= students.getNumberStudents(); i++) {
+	    	for(int j = 1; j <= classes.getNumCourses(); j++) {
+	    		for (int k = 1; k <= semester.getNumberSemesters(); k++) {
 	    			bw.write("y" + i + "_" + j + "_" + k);
 	    			bw.newLine();
 	    		}
