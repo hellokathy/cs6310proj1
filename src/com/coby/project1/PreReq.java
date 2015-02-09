@@ -17,23 +17,20 @@ public class PreReq implements Constraint {
 
 	@Override
 	public void writeConstraints(BufferedWriter bw) throws IOException {
-		int c;
+		int m = this.semesters.getNumberSemesters();
 		for(int i = 1; i <= this.students.getNumberStudents(); i++) {
-			c = 0;
-			for(int j = 1; j <= this.courses.getNumCourses(); j++) {
+			for(int j = 0; j < this.courses.getPreReq().length; j++) {
 				for (int k = 1; k < this.semesters.getNumberSemesters(); k++) {
-			    	bw.write(" y" + i + "_" + j + "_" + k + " +");
-					}
-				while(students.getCourse(i - 1, c) < j && c < students.getStudent(i - 1).size() - 1) {
-					c++;
+					int pre = m - k;
+					int post = pre + 1;
+			    	bw.write(" " + post + " y" + i + "_" + this.courses.getPreReq()[j][1] + "_" + k + " - " + 
+			    				pre + " y" + i + "_" + this.courses.getPreReq()[j][0] + "_" + k + " +");
 				}
-				if (students.getCourse(i - 1, c) == j) {
-					bw.write(" y" + i + "_" + j + "_" + this.semesters.getNumberSemesters() +" = 1");
+
+
+		    	bw.write(" " + 1 + " y" + i + "_" + this.courses.getPreReq()[j][1] + "_" + m + " - " + 
+	    				0 + " y" + i + "_" + this.courses.getPreReq()[j][0] + "_" + m + " <= 0");
 					bw.newLine();
-				} else {
-					bw.write(" y" + i + "_" + j + "_" + this.semesters.getNumberSemesters() +" <= 1");
-					bw.newLine();
-				}
 	    	}
 	    }
 	}

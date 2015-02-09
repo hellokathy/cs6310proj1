@@ -66,7 +66,7 @@ public class Students {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		Scanner s = new Scanner(new File("student_schedule.txt"));
+		Scanner s = new Scanner(new File("student_schedule_6.txt"));
 		String l;
 		int numStudents = 0;
 		

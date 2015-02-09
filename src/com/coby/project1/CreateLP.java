@@ -11,7 +11,7 @@ import org.gnu.glpk.SWIGTYPE_p_int;
 import org.gnu.glpk.glp_iocp;
 import org.gnu.glpk.glp_prob;
 
-public class Test {
+public class CreateLP {
 
 	/**
 	 * @param args
@@ -50,7 +50,7 @@ public class Test {
 		Courses courses = new Courses(courseOfferings, preRequisites, 18, 3);
 		
 //		Setup students
-		Students students = new Students("student_schedule_6.txt");
+		Students students = new Students("student_schedule.txt");
 	    
 //  	Create LP file    
 	    File file = new File("student_schedule.lp");
@@ -102,9 +102,9 @@ public class Test {
 	    		}
 	    	}
 	    }
+	    bw.write("end");
+	    bw.newLine();
 
-	    
-	    
 //	    Close the files
 	    bw.close();
 	    fw.close();

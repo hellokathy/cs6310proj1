@@ -31,7 +31,7 @@ public class StudentSchedule implements Constraint {
 					bw.write(" y" + i + "_" + j + "_" + this.semesters.getNumberSemesters() +" = 1");
 					bw.newLine();
 				} else {
-					bw.write(" y" + i + "_" + j + "_" + this.semesters.getNumberSemesters() +" <= 1");
+					bw.write(" y" + i + "_" + j + "_" + this.semesters.getNumberSemesters() +" = 0");
 					bw.newLine();
 				}
 	    	}

@@ -20,11 +20,14 @@ public class CourseAvailabilityCapacity implements Constraint {
 	public void writeConstraints(BufferedWriter bw) throws IOException {
 		for(int j = 1; j <= this.courses.getNumCourses(); j++) {
 			for (int k = 1; k <= this.semesters.getNumberSemesters(); k++) {
+				for(int i = 1; i < this.students.getNumberStudents(); i++) {
+		    		bw.write(" y" + i + "_" + j + "_" + k + " +");
+		    	}
 				if (this.courses.getCourseOffering()[j -1][(k - 1) % 3]) {
-					for(int i = 1; i < this.students.getNumberStudents(); i++) {
-		    			bw.write(" y" + i + "_" + j + "_" + k + " +");
-		    		}
 				    bw.write(" y" + this.students.getNumberStudents() + "_" + j + "_" + k +" - X <= 0");
+					bw.newLine();
+				} else {
+				    bw.write(" y" + this.students.getNumberStudents() + "_" + j + "_" + k +" = 0");
 					bw.newLine();
 				}
 	    	}
