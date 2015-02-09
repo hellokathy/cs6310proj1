@@ -3,7 +3,7 @@ package com.coby.project1;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
-public class Enrollment implements Constraint{
+public class CourseAvailabilityCapacity implements Constraint {
 
 	private Semesters semesters;
 	private Courses courses;
@@ -18,15 +18,18 @@ public class Enrollment implements Constraint{
 
 	@Override
 	public void writeConstraints(BufferedWriter bw) throws IOException {
-		for(int i = 1; i <= this.students.getNumberStudents(); i++) {
+		for(int j = 1; j <= this.courses.getNumCourses(); j++) {
 			for (int k = 1; k <= this.semesters.getNumberSemesters(); k++) {
-				for(int j = 1; j < this.courses.getNumCourses(); j++) {
-		    		bw.write(" y" + i + "_" + j + "_" + k + " +");
+				if (this.courses.getCourseOffering()[j -1][(k - 1) % 3]) {
+					for(int i = 1; i < this.students.getNumberStudents(); i++) {
+		    			bw.write(" y" + i + "_" + j + "_" + k + " +");
+		    		}
+				    bw.write(" y" + this.students.getNumberStudents() + "_" + j + "_" + k +" - X <= 0");
+					bw.newLine();
 				}
-				bw.write(" y" + i + "_" + this.courses.getNumCourses() + "_" + k +" <= 2");
-				bw.newLine();
 	    	}
 	    }
 	}
 
+	
 }

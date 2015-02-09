@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class Students {
@@ -33,7 +34,7 @@ public class Students {
 						schedule.add(course);
 					}
 				}
-				
+				Collections.sort(schedule);
 				this.students.add(schedule);
 			}
 		}	
@@ -87,7 +88,7 @@ public class Students {
 						schedule.add(course);
 					}
 				}
-				
+				Collections.sort(schedule);
 				students.add(schedule);
 			}
 		}

@@ -13,9 +13,6 @@ import org.gnu.glpk.glp_prob;
 
 public class Test {
 
-//	public static void offset(Semesters s, int i, int j, int k) {
-//		
-//	}
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -45,12 +42,12 @@ public class Test {
 	    		{true,false,false},
 	    		{false,false,true}};
 		
-		int[][] preReq = {{4 ,16},
+		int[][] preRequisites = {{4 ,16},
 				{12,1 },
 				{9 ,13},
 				{3 ,7 }};
 		
-		Courses classes = new Courses(courseOfferings, preReq, 18, 3);
+		Courses courses = new Courses(courseOfferings, preRequisites, 18, 3);
 		
 //		Setup students
 		Students students = new Students("student_schedule_6.txt");
@@ -74,11 +71,31 @@ public class Test {
 	    bw.write("Subject To");
 	    bw.newLine();
 	    
+//	    Enrollment Constraint
+	    Enrollment enrollment = new Enrollment();
+	    enrollment.getParameters(semester, courses, students);
+	    enrollment.writeConstraints(bw);
+	    
+//	    Course Availability and Course Capacity Constraint
+	    CourseAvailabilityCapacity courseAvailabilityCapacity = new CourseAvailabilityCapacity();
+	    courseAvailabilityCapacity.getParameters(semester, courses, students);
+	    courseAvailabilityCapacity.writeConstraints(bw);
+	    
+//	    PreReq Constraint
+	    PreReq preReq = new PreReq();
+	    preReq.getParameters(semester, courses, students);
+	    preReq.writeConstraints(bw);
+	    
+//	    Student Schedule Constraint
+	    StudentSchedule studentSchedule = new StudentSchedule();
+	    studentSchedule.getParameters(semester, courses, students);
+	    studentSchedule.writeConstraints(bw);
+	    
 //	    Variables
 	    bw.write("Binary");
 	    bw.newLine();
 	    for(int i = 1; i <= students.getNumberStudents(); i++) {
-	    	for(int j = 1; j <= classes.getNumCourses(); j++) {
+	    	for(int j = 1; j <= courses.getNumCourses(); j++) {
 	    		for (int k = 1; k <= semester.getNumberSemesters(); k++) {
 	    			bw.write("y" + i + "_" + j + "_" + k);
 	    			bw.newLine();
