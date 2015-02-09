@@ -1,9 +1,11 @@
 package com.coby.project1;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 
-import org.gnu.glpk.GLPK;
 import org.gnu.glpk.SWIGTYPE_p_double;
 import org.gnu.glpk.SWIGTYPE_p_int;
 import org.gnu.glpk.glp_iocp;
@@ -11,6 +13,9 @@ import org.gnu.glpk.glp_prob;
 
 public class Test {
 
+//	public static void offset(Semesters s, int i, int j, int k) {
+//		
+//	}
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -57,10 +62,41 @@ public class Test {
 	    SWIGTYPE_p_double val;
 	    int ret;
 
-	//  Create problem    
-	    lp = GLPK.glp_create_prob();
-	    System.out.println("Problem created");
-	    GLPK.glp_set_prob_name(lp, "myProblem");
-	}
+//  	Create LP file    
+	    File file = new File("student_schedule.lp");
+	    
+//	    Create the file if it doesn't exist
+	    if(!file.exists()) {
+	    	file.createNewFile();
+	    }
+	    
+	    FileWriter fw = new FileWriter(file.getAbsoluteFile());
+	    BufferedWriter bw = new BufferedWriter(fw);
+	    
+//	    Objective Statement
+	    bw.write("Min X");
+	    bw.newLine();
+	    
+//	    Constraints
+	    bw.write("Subject To");
+	    bw.newLine();
+	    
+//	    Variables
+	    bw.write("Binary");
+	    bw.newLine();
+	    for(int i = 0; i < students.getNumberStudents(); i++) {
+	    	for(int j = 0; j < classes.getNumCourses(); j++) {
+	    		for (int k = 0; k < semester.getNumberSemesters(); k++) {
+	    			bw.write("y" + i + "_" + j + "_" + k);
+	    			bw.newLine();
+	    		}
+	    	}
+	    }
 
+	    
+	    
+//	    Close the files
+	    bw.close();
+	    fw.close();
+	}
 }
