@@ -43,121 +43,128 @@ public class ClassScheduler {
 		Courses courses = new Courses(courseOfferings, preRequisites, 18, 3);
 
 		// Setup students
-		//
-		// File student_file = new File(args[0]);
-		Students students = new Students("student_schedule.txt");
 
-		// Create LP file
-		File file = new File("student_schedule.lp");
+		// Students students = new Students("student_schedule.txt");
+		if (args.length >= 1) {
+			Students students = new Students(args[0]);
 
-		// Create the file if it doesn't exist
-		if (!file.exists()) {
-			file.createNewFile();
-		}
+			// Create LP file
+			File file = new File("student_schedule.lp");
 
-		FileWriter fw = new FileWriter(file.getAbsoluteFile());
-		BufferedWriter bw = new BufferedWriter(fw);
+			// Create the file if it doesn't exist
+			if (!file.exists()) {
+				file.createNewFile();
+			}
 
-		// Objective Statement
-		bw.write("Min X");
-		bw.newLine();
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
 
-		// Constraints
-		bw.write("Subject To");
-		bw.newLine();
+			// Objective Statement
+			bw.write("Min X");
+			bw.newLine();
 
-		// Enrollment Constraint
-		Enrollment enrollment = new Enrollment();
-		enrollment.getParameters(semesters, courses, students);
-		enrollment.writeConstraints(bw);
+			// Constraints
+			bw.write("Subject To");
+			bw.newLine();
 
-		// Course Availability and Course Capacity Constraint
-		CourseAvailabilityCapacity courseAvailabilityCapacity = new CourseAvailabilityCapacity();
-		courseAvailabilityCapacity.getParameters(semesters, courses, students);
-		courseAvailabilityCapacity.writeConstraints(bw);
+			// Enrollment Constraint
+			Enrollment enrollment = new Enrollment();
+			enrollment.getParameters(semesters, courses, students);
+			enrollment.writeConstraints(bw);
 
-		// PreReq Constraint
-		PreReq preReq = new PreReq();
-		preReq.getParameters(semesters, courses, students);
-		preReq.writeConstraints(bw);
+			// Course Availability and Course Capacity Constraint
+			CourseAvailabilityCapacity courseAvailabilityCapacity = new CourseAvailabilityCapacity();
+			courseAvailabilityCapacity.getParameters(semesters, courses,
+					students);
+			courseAvailabilityCapacity.writeConstraints(bw);
 
-		// Student Schedule Constraint
-		StudentSchedule studentSchedule = new StudentSchedule();
-		studentSchedule.getParameters(semesters, courses, students);
-		studentSchedule.writeConstraints(bw);
+			// PreReq Constraint
+			PreReq preReq = new PreReq();
+			preReq.getParameters(semesters, courses, students);
+			preReq.writeConstraints(bw);
 
-		// Variables
-		bw.write("Binary");
-		bw.newLine();
-		for (int i = 1; i <= students.getNumberStudents(); i++) {
-			for (int j = 1; j <= courses.getNumCourses(); j++) {
-				for (int k = 1; k <= semesters.getNumberSemesters(); k++) {
-					bw.write("y" + i + "_" + j + "_" + k);
-					bw.newLine();
+			// Student Schedule Constraint
+			StudentSchedule studentSchedule = new StudentSchedule();
+			studentSchedule.getParameters(semesters, courses, students);
+			studentSchedule.writeConstraints(bw);
+
+			// Variables
+			bw.write("Binary");
+			bw.newLine();
+			for (int i = 1; i <= students.getNumberStudents(); i++) {
+				for (int j = 1; j <= courses.getNumCourses(); j++) {
+					for (int k = 1; k <= semesters.getNumberSemesters(); k++) {
+						bw.write("y" + i + "_" + j + "_" + k);
+						bw.newLine();
+					}
 				}
 			}
-		}
-		bw.write("end");
-		bw.newLine();
+			bw.write("end");
+			bw.newLine();
 
-		// Close the files
-		bw.close();
-		fw.close();
+			// Close the files
+			bw.close();
+			fw.close();
 
-		// Create LP file
-		File file2 = new File("student_schedule_final.txt");
+			// Run Gurobi
+			try {
+				GRBEnv env = new GRBEnv();
+				GRBModel model = new GRBModel(env, "student_schedule.lp");
 
-		// Create the file if it doesn't exist
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-
-		FileWriter fw2 = new FileWriter(file.getAbsoluteFile());
-		BufferedWriter bw2 = new BufferedWriter(fw);
-		// Run Gurobi
-		try {
-			GRBEnv env = new GRBEnv();
-			GRBModel model = new GRBModel(env, "student_schedule.lp");
-
-			model.optimize();
-
-			int optimstatus = model.get(GRB.IntAttr.Status);
-
-			if (optimstatus == GRB.Status.INF_OR_UNBD) {
-				model.getEnv().set(GRB.IntParam.Presolve, 0);
 				model.optimize();
-				optimstatus = model.get(GRB.IntAttr.Status);
+
+				int optimstatus = model.get(GRB.IntAttr.Status);
+
+				if (optimstatus == GRB.Status.INF_OR_UNBD) {
+					model.getEnv().set(GRB.IntParam.Presolve, 0);
+					model.optimize();
+					optimstatus = model.get(GRB.IntAttr.Status);
+				}
+
+				if (optimstatus == GRB.Status.OPTIMAL) {
+					double objval = model.get(GRB.DoubleAttr.ObjVal);
+					System.out.println("Optimal objective: " + objval);
+					model.write("student_schedule.sol");
+				} else if (optimstatus == GRB.Status.INFEASIBLE) {
+					System.out.println("Model is infeasible");
+
+					// Compute and write out IIS
+					model.computeIIS();
+					model.write("model.ilp");
+				} else if (optimstatus == GRB.Status.UNBOUNDED) {
+					System.out.println("Model is unbounded");
+				} else {
+					System.out
+							.println("Optimization was stopped with status = "
+									+ optimstatus);
+				}
+
+				// Dispose of model and environment
+				model.dispose();
+				env.dispose();
+
+			} catch (GRBException e) {
+				System.out.println("Error code: " + e.getErrorCode() + ". "
+						+ e.getMessage());
 			}
+		} else {
 
-			if (optimstatus == GRB.Status.OPTIMAL) {
-				double objval = model.get(GRB.DoubleAttr.ObjVal);
-				System.out.println("Optimal objective: " + objval);
-				model.write("student_schedule.sol");
-			} else if (optimstatus == GRB.Status.INFEASIBLE) {
-				System.out.println("Model is infeasible");
-
-				// Compute and write out IIS
-				model.computeIIS();
-				model.write("model.ilp");
-			} else if (optimstatus == GRB.Status.UNBOUNDED) {
-				System.out.println("Model is unbounded");
-			} else {
-				System.out.println("Optimization was stopped with status = "
-						+ optimstatus);
-			}
-
-			// Dispose of model and environment
-			model.dispose();
-			env.dispose();
-
-		} catch (GRBException e) {
-			System.out.println("Error code: " + e.getErrorCode() + ". "
-					+ e.getMessage());
+			System.err.println("Students file not specified. Use ");
+			return;
 		}
-
 		// FileReader fr = new FileReader("student_schedule.sol");
 		// BufferedReader br = new BufferedReader(fr);
 		//
+		// // Create schedule file
+		// File file_sch = new File("student_schedule_final.txt");
+		//
+		// // Create the file if it doesn't exist
+		// if (!file.exists()) {
+		// file.createNewFile();
+		// }
+		//
+		// FileWriter fw_sch = new FileWriter(file_sch.getAbsoluteFile());
+		// BufferedWriter bw_sch = new BufferedWriter(fw_sch);
 		//
 		// int[][][] schedule = new int[students.getNumberStudents()][courses
 		// .getNumCourses()][semesters.getNumberSemesters()];
@@ -166,9 +173,9 @@ public class ClassScheduler {
 		// for (int i = 0; (line = br.readLine()) != null; i++) {
 		// if (i == 0) {
 		// String[] tokens = line.split("[ ]+");
-		// bw2.write("The capacity of students per class needs to be a minimum of: "
+		// bw_sch.write("The capacity of students per class needs to be a minimum of: "
 		// + tokens[1]);
-		// bw2.newLine();
+		// bw_sch.newLine();
 		// } else {
 		// String[] tokens = line.split("[y_ ]+");
 		// int s = Integer.parseInt(tokens[1]);
@@ -180,19 +187,19 @@ public class ClassScheduler {
 		// }
 		//
 		// for (int i = 0; i < students.getNumberStudents(); i++) {
-		// bw2.write("Student " + (i + 1) +":");
-		// bw2.newLine();
+		// bw_sch.write("Student " + (i + 1) + ":");
+		// bw_sch.newLine();
 		// for (int j = 0; j < courses.getNumCourses(); j++) {
 		// for (int k = 1; k < semesters.getNumberSemesters(); k++) {
-		// bw2.write(schedule[i][j][k]);
-		// bw2.newLine();
+		// bw_sch.write(schedule[i][j][k]);
+		// bw_sch.newLine();
 		// }
 		// }
 		// }
 		//
 		// // Close the files
-		// bw2.close();
-		// fw2.close();
+		// bw_sch.close();
+		// fw_sch.close();
 		// br.close();
 		// fr.close();
 	}
